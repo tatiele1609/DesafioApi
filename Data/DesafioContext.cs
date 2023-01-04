@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using DesafioApi.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace DesafioApi.Models
+namespace DesafioApi.Data
 {
     public class DesafioContext : DbContext
     {

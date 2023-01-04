@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DesafioApi.Models;
+using DesafioApi.Data;
+using DesafioApi.DTO.Servidor;
+using DesafioApi.DTO.Video;
+using DesafioApi.Handlers;
+using DesafioApi.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,49 +11,48 @@ namespace DesafioApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class ServersController : ControllerBase 
-    {
-        
+    { 
         private readonly DesafioContext _desafioContext;
+        private readonly ServerHandler _serverHandler;
 
-        public ServersController(DesafioContext desafioContext)
+        public ServersController(DesafioContext desafioContext, ServerHandler serverHandler)
         {
             _desafioContext = desafioContext;
+            _serverHandler = serverHandler;
         }
 
+        
         [HttpPost]
-        public async Task<ActionResult<Servidor>> PostServidor(Servidor servidor)
+        public async Task<ActionResult<CreateServidorDTO>> PostServidor(CreateServidorDTO servidorDTO)
         {
-            _desafioContext.Servidor.Add(servidor);
-            await _desafioContext.SaveChangesAsync();
-
-            return Ok();
-            
+            try
+            {
+                await _serverHandler.Handle(servidorDTO);
+                return Ok("Servidor adicionado com sucesso!");
+            }
+            catch (Exception)
+            {
+                return BadRequest("Não foi possível adicionar o servidor!");
+            }
         }
 
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Servidor>> PutServidor(Servidor servidor)
+        public async Task<ActionResult<Servidor>> PutServidor(UpdateServidorDTO servidorDTO)
         {
-            var servidorAtual = await _desafioContext.Servidor.FindAsync(servidor.Id);  
-            if (servidor == null)
-            {
-                return NotFound();
-            }
-
-            servidorAtual.Nome = servidor.Nome;
-            servidorAtual.EnderecoIP = servidor.EnderecoIP;
-            servidorAtual.PortaIP = servidor.PortaIP;
+            var servidorAtual = await _desafioContext.Servidor.FindAsync(servidorDTO.Id);  
+            if (servidorAtual == null)
+                return NotFound("O id do Servidor informado não foi encontrado!");
             
             try
             {
-                await _desafioContext.SaveChangesAsync();
+                await _serverHandler.Handle(servidorDTO);
+                return Ok("Servidor atualizado com sucesso!");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                return BadRequest("Não foi possível atualizar o servidor!");
             }
-            
-            return NoContent();
         }
 
 
@@ -71,9 +70,7 @@ namespace DesafioApi.Controllers
             var servidor = await _desafioContext.Servidor.FindAsync(id);
 
             if (servidor == null)
-            {
-                return NotFound();
-            }
+                return NotFound("O id do Servidor informado não foi encontrado!");
 
             return servidor;
         }
@@ -87,43 +84,50 @@ namespace DesafioApi.Controllers
                                 .FirstOrDefaultAsync();
 
             if (servidor == null)
-            {
-                return NotFound();
-            }
+                return NotFound("Não foi encontrado servidor para as configurações de endereço e porta informadas!");
 
             return servidor;
         }
 
 
-        //disponibilidade
+        //disponibilidade servidor
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Servidor>> DeleteServidor(Guid id)
+        public async Task<ActionResult<Servidor>> DeleteServidor(DeleteServidorDTO servidorDTO)
         {
-            var servidor = await _desafioContext.Servidor.FindAsync(id);
-
+            var servidor = await _desafioContext.Servidor.FindAsync(servidorDTO.Id);
             if (servidor == null)
+                return NotFound("O id do Servidor informado não foi encontrado!");
+
+            try
             {
-                return NotFound();
+                await _serverHandler.Handle(servidorDTO);
+                return Ok("Servidor excluído com sucesso!");
             }
-
-            _desafioContext.Remove(servidor);
-            await _desafioContext.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception)
+            {
+                return BadRequest("Não foi possível excluir o servidor!");
+            }
         }
 
 
-        //videos
+        
         [HttpPost("{serverId}/videos​")]
-        public async Task<ActionResult<Video>> PostVideoServidor(Video video, Guid serverId)
+        public async Task<ActionResult<Video>> PostVideoServidor(CreateVideoDTO videoDTO)
         {
-            video.IdServidor = serverId;
+            var servidor = await _desafioContext.Servidor.FindAsync(videoDTO.IdServidor);
+            if (servidor == null)
+                return NotFound("O id do Servidor informado não foi encontrado!");
 
-            _desafioContext.Video.Add(video);
-            await _desafioContext.SaveChangesAsync();
-
-            return Ok();
+            try
+            {
+                await _serverHandler.Handle(videoDTO);
+                return Ok("Vídeo adicionado ao servidor com sucesso!");
+            }
+            catch (Exception)
+            {
+                return BadRequest("Não foi possível adicionar o vídeo ao servidor!");
+            }
         }
 
 
@@ -160,21 +164,25 @@ namespace DesafioApi.Controllers
 
 
         [HttpDelete("{serverId}/videos/{videoId}")]
-        public async Task<ActionResult<Video>> DeleteVideoServidor(Guid serverId, Guid videoId)
+        public async Task<ActionResult<DeleteVideoDTO>> DeleteVideoServidor(DeleteVideoDTO videoDTO)
         {
             var video = await _desafioContext.Video
-                            .Where(x => x.IdServidor == serverId && x.Id == videoId)
+                            .Where(x => x.IdServidor == videoDTO.IdServidor && x.Id == videoDTO.IdVideo)
                             .FirstOrDefaultAsync();
 
             if (video == null)
+                return NotFound("O vídeo informado não foi encontrado!");
+
+            try
             {
-                return NotFound();
+                _desafioContext.Remove(video);
+                await _desafioContext.SaveChangesAsync();
+                return Ok("Vídeo excluído com sucesso!");
             }
-
-            _desafioContext.Remove(video);
-            await _desafioContext.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception)
+            {
+                return BadRequest("Não foi possível excluir o vídeo!");
+            }
         }
 
     }

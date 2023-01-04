@@ -1,23 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace DesafioApi.Models
+namespace DesafioApi.Models.Entities
 {
     public class Servidor
     {
-        // public Servidor(Guid id, string nome, string enderecoIP, int portaIP)
-        // {
-        //     Id = id;
-        //     Nome = nome;
-        //     EnderecoIP = enderecoIP;
-        //     PortaIP = portaIP;
-        // }
+        public Servidor(Guid id, string nome, string enderecoIP, int portaIP)
+        {
+            Id = id;
+            Nome = nome;
+            EnderecoIP = enderecoIP;
+            PortaIP = portaIP;
+        }
 
         public Guid Id { get; set; }
         public string Nome { get; set; }
         public string EnderecoIP { get; set; }
         public int PortaIP { get; set; }
+
     }
 }
