@@ -10,7 +10,7 @@ namespace DesafioApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ServersController : ControllerBase
+    public class ServersController : ControllerBase 
     {
         
         private readonly DesafioContext _desafioContext;
