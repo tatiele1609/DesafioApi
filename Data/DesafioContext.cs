@@ -1,4 +1,4 @@
-using DesafioApi.Models.Entities;
+using DesafioApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DesafioApi.Data
@@ -11,5 +11,6 @@ namespace DesafioApi.Data
 
         public DbSet<Servidor> Servidor { get; set; } = null!;
         public DbSet<Video> Video { get; set; } = null!;
+        public DbSet<Arquivo> Arquivo { get; set; } = null!;
     }
 }

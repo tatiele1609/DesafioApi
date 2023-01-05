@@ -1,7 +1,7 @@
 using DesafioApi.Data;
 using DesafioApi.DTO.Servidor;
 using DesafioApi.DTO.Video;
-using DesafioApi.Models.Entities;
+using DesafioApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DesafioApi.Handlers
@@ -75,9 +75,13 @@ namespace DesafioApi.Handlers
             try
             {
                 var video = new Video(Guid.NewGuid(), createVideo.Descricao, createVideo.IdServidor);
-
                 _desafioContext.Video.Add(video);
                 await _desafioContext.SaveChangesAsync(); 
+
+                var arquivoVideo = new Arquivo(Guid.NewGuid(), createVideo.VideoBase64, video.Id);
+                _desafioContext.Arquivo.Add(arquivoVideo);
+                await _desafioContext.SaveChangesAsync(); 
+                
             }
             catch (System.Exception)
             {
@@ -86,6 +90,14 @@ namespace DesafioApi.Handlers
             
         }
 
+        public async Task<string> Handle(GetVideoBinaryDTO getVideoBinaryDTO)
+        {
+            var arquivo = await _desafioContext.Arquivo
+                        .Where(x => x.IdVideo == getVideoBinaryDTO.IdVideo)
+                        .FirstOrDefaultAsync();
+
+            return arquivo.CodigoBase64;
+        }
 
         public async Task Handle(DeleteVideoDTO deleteVideo)
         {

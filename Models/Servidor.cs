@@ -1,5 +1,5 @@
 
-namespace DesafioApi.Models.Entities
+namespace DesafioApi.Models
 {
     public class Servidor
     {

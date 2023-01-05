@@ -2,7 +2,7 @@ using DesafioApi.Data;
 using DesafioApi.DTO.Servidor;
 using DesafioApi.DTO.Video;
 using DesafioApi.Handlers;
-using DesafioApi.Models.Entities;
+using DesafioApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -90,7 +90,6 @@ namespace DesafioApi.Controllers
         }
 
 
-        //disponibilidade servidor
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<Servidor>> DeleteServidor(DeleteServidorDTO servidorDTO)
@@ -145,6 +144,27 @@ namespace DesafioApi.Controllers
 
             return video;
         }
+
+        [HttpGet("{serverId}/videos/{videoId}/binary​")]
+        public async Task<ActionResult<string>> GetConteudoVideo(Guid serverId, Guid videoId)
+        {
+            try
+            {
+                var video = new GetVideoBinaryDTO
+                {
+                    IdServidor = serverId,
+                    IdVideo = videoId
+                };
+
+                var result = await _serverHandler.Handle(video);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return BadRequest("Não foi possível adicionar o vídeo ao servidor!");
+            }
+        }
+
 
 
         [HttpGet("{serverId}/videos")]

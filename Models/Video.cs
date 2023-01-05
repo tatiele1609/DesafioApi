@@ -1,5 +1,7 @@
 
-namespace DesafioApi.Models.Entities
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace DesafioApi.Models
 {
     public class Video
     {
@@ -13,5 +15,6 @@ namespace DesafioApi.Models.Entities
         public Guid Id { get; set; }
         public string Descricao { get; set; }
         public Guid IdServidor { get; set; }
+
     }
 }
