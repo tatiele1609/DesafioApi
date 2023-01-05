@@ -161,7 +161,7 @@ namespace DesafioApi.Controllers
             }
             catch (Exception)
             {
-                return BadRequest("Não foi possível adicionar o vídeo ao servidor!");
+                return BadRequest("Não foi possível retornar o conteúdo do vídeo!");
             }
         }
 
